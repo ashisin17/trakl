@@ -4,7 +4,7 @@ import { LazyModalConfirm } from '#components'
 const route = useRoute()
 const toast = useToast()
 const overlay = useOverlay()
-const { loggedIn, openInPopup } = useUserSession()
+const { loggedIn } = useUsername();
 
 const open = ref(false)
 
@@ -74,6 +74,12 @@ async function deleteChat(id: string) {
   if (route.params.id === id) {
     navigateTo('/')
   }
+}
+
+function logout() {
+  const {username} = useUsername();
+  username.value = null;
+  navigateTo('/register');
 }
 
 defineShortcuts({
@@ -147,12 +153,11 @@ defineShortcuts({
         <UserMenu v-if="loggedIn" :collapsed="collapsed" />
         <UButton
           v-else
-          :label="collapsed ? '' : 'Login with GitHub'"
-          icon="i-simple-icons-github"
+          icon="i-lucide-log-out"
           color="neutral"
           variant="ghost"
           class="w-full"
-          @click="openInPopup('/auth/github')"
+          @click="logout()"
         />
       </template>
     </UDashboardSidebar>

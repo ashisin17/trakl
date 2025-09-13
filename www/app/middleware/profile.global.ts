@@ -1,7 +1,5 @@
-import { useStorage } from '@vueuse/core';
-
-export default defineNuxtRouteMiddleware((to, from) => {
-  const username = useStorage<string | null>('userName', null);
+export default defineNuxtRouteMiddleware((to, _from) => {
+  const {username} = useUsername();
 
   if (to.path !== '/register' && !username.value) {
     return navigateTo('/register');
