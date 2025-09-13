@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: ankane/pgvector:latest
+    environment:
+      POSTGRES_DB: trakl
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # Recommendation Service
+  rec-service:
+    build: ./rec
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/trakl
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./rec:/app
+    restart: unless-stopped
+
+  # Agent Service (placeholder for future implementation)
+  agent-service:
+    build: ./agent
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/trakl
+      - REC_SERVICE_URL=http://rec-service:8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./agent:/app
+    restart: unless-stopped
+
+  # Website (Nuxt.js)
+  website:
+    build: ./www
+    ports:
+      - "3000:3000"
+    environment:
+      - NUXT_DATABASE_URL=postgresql://postgres:password@postgres:5432/trakl
+      - NUXT_REC_SERVICE_URL=http://rec-service:8001
+      - NUXT_AGENT_SERVICE_URL=http://agent-service:8002
+    depends_on:
+      - postgres
+      - rec-service
+      - agent-service
+    volumes:
+      - ./www:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
