@@ -1,0 +1,81 @@
+{
+    "timeBlocks": [
+      {
+        "name": "Morning Standup",
+        "date": "2024-01-15",
+        "time": "09:00-09:30",
+        "description": "Daily team sync",
+        "location": "Conference Room A",
+        "timezone": "America/New_York",
+        "reminder": 10,
+        "attendees": ["team@company.com"],
+        "repeat": {
+          "type": "daily",
+          "every": 1,
+          "count": 30,
+          "skipWeekends": true,
+          "skip": ["2024-01-20", "2024-01-21"]
+        }
+      },
+      
+      {
+        "name": "Weekly Team Meeting",
+        "date": "2024-01-15",
+        "time": "14:00-15:00",
+        "description": "Weekly planning session",
+        "location": "Virtual",
+        "repeat": {
+          "type": "weekly",
+          "every": 1,
+          "count": 12
+        }
+      },
+      
+      {
+        "name": "Monthly Review",
+        "date": "2024-01-30",
+        "time": "16:00-17:00",
+        "description": "Monthly team review",
+        "repeat": {
+          "type": "monthly",
+          "every": 1,
+          "count": 6
+        }
+      },
+      
+      {
+        "name": "Project Deadline",
+        "date": "2024-02-15",
+        "time": "09:00-09:00",
+        "description": "Final submission due",
+        "location": "Online Portal"
+      },
+      
+      {
+        "name": "Lunch Break",
+        "date": "2024-01-15",
+        "time": "12:00-13:00",
+        "description": "Daily lunch break",
+        "repeat": {
+          "type": "daily",
+          "every": 1,
+          "count": 50,
+          "skipWeekends": true
+        }
+      },
+      
+      {
+        "name": "Bi-weekly Sprint Planning",
+        "date": "2024-01-15",
+        "time": "10:00-12:00",
+        "description": "Sprint planning session",
+        "location": "Room 101",
+        "attendees": ["dev-team@company.com", "product@company.com"],
+        "repeat": {
+          "type": "weekly",
+          "every": 2,
+          "count": 13
+        }
+      }
+    ]
+  }
