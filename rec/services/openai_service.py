@@ -13,14 +13,46 @@ class DedalusService:
         try:
             embeddings = []
             for text in texts:
+                # Use Dedalus to generate semantic features via text analysis
+                # Since direct embedding models aren't available, we'll use the LLM
+                # to extract semantic features and convert them to embeddings
+                prompt = f"""Analyze this text and provide 10 key semantic concepts/keywords that represent its meaning:
+                Text: "{text}"
+                
+                Respond with only the keywords separated by commas, no other text."""
+                
                 response = await self.runner.run(
-                    input=f"Generate embedding for: {text}",
-                    model=settings.embedding_model
+                    input=prompt,
+                    model=settings.dedalus_model
                 )
-                # Note: This is a simplified approach. In practice, you'd need
-                # to use a proper embedding endpoint or tool through Dedalus
-                # For now, we'll return mock embeddings
-                embeddings.append([0.1] * 1536)  # Mock 1536-dim embedding
+                
+                # Convert the semantic keywords to a vector embedding
+                import hashlib
+                import numpy as np
+                
+                # Create base embedding from text hash for consistency
+                text_hash = hashlib.md5(text.encode()).hexdigest()
+                seed = int(text_hash[:8], 16)
+                np.random.seed(seed)
+                embedding = np.random.normal(0, 0.1, 1536).tolist()
+                
+                # Enhance embedding with AI-extracted semantic features
+                if response and response.final_output:
+                    keywords = [k.strip().lower() for k in response.final_output.split(',')]
+                    for i, keyword in enumerate(keywords[:20]):  # Use up to 20 keywords
+                        keyword_hash = hash(keyword) % 1536
+                        embedding[keyword_hash] += 0.8  # Stronger semantic signal
+                        
+                        # Add secondary features
+                        if i < 1536:
+                            embedding[i] += len(keyword) * 0.1
+                
+                # Normalize the embedding
+                norm = np.linalg.norm(embedding)
+                if norm > 0:
+                    embedding = (np.array(embedding) / norm).tolist()
+                
+                embeddings.append(embedding)
             return embeddings
         except Exception as e:
             print(f"Error generating embeddings: {e}")

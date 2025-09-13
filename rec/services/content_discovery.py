@@ -10,13 +10,13 @@ import re
 
 from ..database import ContentSource
 from ..models import ContentType, ContentSourceResponse, DifficultyLevel
-from .openai_service import OpenAIService
+from .openai_service import DedalusService
 from .embedding_service import EmbeddingService
 
 class ContentDiscoveryService:
     def __init__(self, db: AsyncSession):
         self.db = db
-        self.openai_service = OpenAIService()
+        self.dedalus_service = DedalusService()
         self.embedding_service = EmbeddingService()
         
         # Platform-specific search configurations

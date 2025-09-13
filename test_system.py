@@ -64,12 +64,12 @@ async def test_recommendation_api():
             
             if response.status_code == 200:
                 content = response.json()
-                print(f"  ✅ Found {len(content.get('results', []))} content items")
+                print(f" Found {len(content.get('results', []))} content items")
             else:
-                print(f"  ❌ Content discovery failed: {response.status_code}")
+                print(f" Content discovery failed: {response.status_code}")
                 
         except Exception as e:
-            print(f"  ❌ Recommendation API error: {str(e)}")
+            print(f" Recommendation API error: {str(e)}")
 
 async def test_agent_api():
     """Test the agent service API"""

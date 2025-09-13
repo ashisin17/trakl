@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from contextlib import asynccontextmanager
-from .api import plans, sessions, progress, calendar_integration
+from .api import plans
 from .database import engine, create_tables
 from .config import settings
 
@@ -30,9 +30,6 @@ app.add_middleware(
 
 # Include routers
 app.include_router(plans.router, prefix="/api/plans", tags=["plans"])
-app.include_router(sessions.router, prefix="/api/sessions", tags=["sessions"])
-app.include_router(progress.router, prefix="/api/progress", tags=["progress"])
-app.include_router(calendar_integration.router, prefix="/api/calendar", tags=["calendar"])
 
 @app.get("/")
 async def root():
