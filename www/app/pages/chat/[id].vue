@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import type { DefineComponent } from 'vue'
-import { Chat } from '@ai-sdk/vue'
-import { DefaultChatTransport } from 'ai'
 import type { UIMessage } from 'ai'
 import { useClipboard } from '@vueuse/core'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
@@ -14,7 +12,6 @@ const components = {
 const route = useRoute()
 const toast = useToast()
 const clipboard = useClipboard()
-const { model } = useModels()
 
 const { data } = await useFetch(`/api/chats/${route.params.id}`, {
   cache: 'force-cache'
@@ -26,35 +23,10 @@ if (!data.value) {
 
 const input = ref('')
 
-const chat = new Chat({
-  id: data.value.id,
-  messages: data.value.messages,
-  transport: new DefaultChatTransport({
-    api: `/api/chats/${data.value.id}`,
-    body: {
-      model: model.value
-    }
-  }),
-  onFinish() {
-    refreshNuxtData('chats')
-  },
-  onError(error) {
-    const { message } = typeof error.message === 'string' && error.message[0] === '{' ? JSON.parse(error.message) : error
-    toast.add({
-      description: message,
-      icon: 'i-lucide-alert-circle',
-      color: 'error',
-      duration: 0
-    })
-  }
-})
-
 function handleSubmit(e: Event) {
   e.preventDefault()
   if (input.value.trim()) {
-    chat.sendMessage({
-      text: input.value
-    })
+    // Send to Anshita's backend
     input.value = ''
   }
 }
@@ -73,7 +45,7 @@ function copy(e: MouseEvent, message: UIMessage) {
 
 onMounted(() => {
   if (data.value?.messages.length === 1) {
-    chat.regenerate()
+    // ask anshita for regeneration
   }
 })
 </script>
@@ -129,10 +101,6 @@ onMounted(() => {
             @stop="chat.stop"
             @reload="chat.regenerate"
           />
-
-          <template #footer>
-            <ModelSelect v-model="model" />
-          </template>
         </UChatPrompt>
       </UContainer>
     </template>
