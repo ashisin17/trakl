@@ -86,4 +86,6 @@ class AIScheduler {
       const options = titles[goal.type] || ['📅 Scheduled Block'];
       return options[Math.floor(Math.random() * options.length)];
     }
+
+    
   }
