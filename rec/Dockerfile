@@ -13,10 +13,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY . ./rec
 
 # Expose port
 EXPOSE 8001
 
-# Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+# Set PYTHONPATH and run the application
+ENV PYTHONPATH=/app
+CMD ["python", "-m", "uvicorn", "rec.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
