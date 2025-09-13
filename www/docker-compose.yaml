@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:17
+    container_name: trakl_postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+    name: trakl_postgres_data

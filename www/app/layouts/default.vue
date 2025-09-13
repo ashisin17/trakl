@@ -95,8 +95,7 @@ defineShortcuts({
     >
       <template #header="{ collapsed }">
         <NuxtLink to="/" class="flex items-end gap-0.5">
-          <Logo class="h-8 w-auto shrink-0" />
-          <span v-if="!collapsed" class="text-xl font-bold text-highlighted">Chat</span>
+          <span class="text-xl font-bold text-highlighted">Trakl</span>
         </NuxtLink>
 
         <div v-if="!collapsed" class="flex items-center gap-1.5 ms-auto">

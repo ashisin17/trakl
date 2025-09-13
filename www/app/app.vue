@@ -17,16 +17,16 @@ useHead({
   }
 })
 
-const title = 'Nuxt AI Chatbot template'
-const description = 'A full-featured, hackable Nuxt AI chatbot template made with Nuxt UI.'
+const title = 'Trakl - Make your learning actionable'
+const description = 'Trakl is an learning management system that helps you structure your learning with actionable tasks and goals.'
 
 useSeoMeta({
   title,
   description,
   ogTitle: title,
   ogDescription: description,
-  ogImage: 'https://ui4.nuxt.com/assets/templates/nuxt/chat-light.png',
-  twitterImage: 'https://ui4.nuxt.com/assets/templates/nuxt/chat-light.png',
+  ogImage: '', // TODO add og image
+  twitterImage: '', // TODO add twitter image
   twitterCard: 'summary_large_image'
 })
 </script>
