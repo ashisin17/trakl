@@ -1,9 +1,9 @@
-import openai
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Dict, Any, List
 import httpx
 from datetime import datetime, timedelta
 import json
+from dedalus_labs import AsyncDedalus, DedalusRunner
 
 from ..database import LearningPlan
 from ..models import (
@@ -18,7 +18,8 @@ from ..config import settings
 class PlanGeneratorService:
     def __init__(self, db: AsyncSession):
         self.db = db
-        self.openai_client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
+        self.dedalus_client = AsyncDedalus(api_key=settings.dedalus_api_key)
+        self.dedalus_runner = DedalusRunner(self.dedalus_client)
     
     async def generate_plan(
         self,
@@ -189,14 +190,12 @@ class PlanGeneratorService:
         """
         
         try:
-            response = await self.openai_client.chat.completions.create(
-                model=settings.openai_model,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=800,
-                temperature=0.7
+            response = await self.dedalus_runner.run(
+                input=prompt,
+                model=settings.dedalus_model
             )
             
-            content = response.choices[0].message.content
+            content = response.final_output
             return json.loads(content)
         except Exception as e:
             print(f"Error generating plan structure: {e}")

@@ -5,10 +5,10 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql://postgres:password@localhost:5432/trakl"
     
-    # OpenAI
-    openai_api_key: str
-    openai_model: str = "gpt-4"
-    embedding_model: str = "text-embedding-3-small"
+    # Dedalus Labs
+    dedalus_api_key: str
+    dedalus_model: str = "openai/gpt-4o-mini"
+    embedding_model: str = "openai/text-embedding-3-small"
     
     # Redis (optional caching)
     redis_url: Optional[str] = "redis://localhost:6379"

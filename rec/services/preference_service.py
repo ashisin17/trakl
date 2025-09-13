@@ -6,12 +6,12 @@ from datetime import datetime
 
 from ..database import LearningPreference, User
 from ..models import LearningPreferenceCreate, LearningStyleQuizResponse
-from .openai_service import OpenAIService
+from .openai_service import DedalusService
 
 class PreferenceService:
     def __init__(self, db: AsyncSession):
         self.db = db
-        self.openai_service = OpenAIService()
+        self.dedalus_service = DedalusService()
     
     async def calculate_preferences_from_quiz(self, responses: List[LearningStyleQuizResponse]) -> LearningPreferenceCreate:
         """Calculate learning preferences from quiz responses"""
@@ -175,7 +175,7 @@ class PreferenceService:
         """
         
         try:
-            explanation = await self.openai_service.generate_text(prompt, max_tokens=150)
+            explanation = await self.dedalus_service.generate_text(prompt, max_tokens=150)
             return explanation.strip()
         except Exception as e:
             # Fallback explanation

@@ -5,9 +5,9 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql://postgres:password@localhost:5432/trakl"
     
-    # OpenAI
-    openai_api_key: str
-    openai_model: str = "gpt-4"
+    # Dedalus Labs
+    dedalus_api_key: str
+    dedalus_model: str = "openai/gpt-4o-mini"
     
     # External Services
     rec_service_url: str = "http://localhost:8001"

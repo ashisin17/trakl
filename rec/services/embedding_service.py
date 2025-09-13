@@ -5,11 +5,11 @@ from typing import List, Optional
 import numpy as np
 
 from ..database import ContentSource, LearningGoal
-from .openai_service import OpenAIService
+from .openai_service import DedalusService
 
 class EmbeddingService:
     def __init__(self):
-        self.openai_service = OpenAIService()
+        self.dedalus_service = DedalusService()
     
     async def generate_content_embeddings(self, db: AsyncSession, content_id: str):
         """Generate and store embeddings for content"""
@@ -27,7 +27,7 @@ class EmbeddingService:
         content_text = f"{content.title} {content.description or ''} {' '.join(content.topics or [])}"
         
         # Generate embeddings
-        embeddings = await self.openai_service.generate_embeddings([title_text, content_text])
+        embeddings = await self.dedalus_service.generate_embeddings([title_text, content_text])
         
         if len(embeddings) >= 2:
             # Update content with embeddings
@@ -56,7 +56,7 @@ class EmbeddingService:
         goal_text = f"{goal.title} {goal.description} {' '.join(goal.target_skills or [])}"
         
         # Generate embedding
-        embeddings = await self.openai_service.generate_embeddings([goal_text])
+        embeddings = await self.dedalus_service.generate_embeddings([goal_text])
         
         if embeddings:
             # Update goal with embedding

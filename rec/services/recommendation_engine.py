@@ -7,13 +7,13 @@ from datetime import datetime
 from ..database import ContentSource, LearningPreference, LearningGoal, Recommendation, UserInteraction
 from ..models import ContentType, DifficultyLevel
 from .embedding_service import EmbeddingService
-from .openai_service import OpenAIService
+from .openai_service import DedalusService
 
 class RecommendationEngine:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.embedding_service = EmbeddingService()
-        self.openai_service = OpenAIService()
+        self.dedalus_service = DedalusService()
     
     async def generate_recommendations(
         self,
@@ -144,7 +144,7 @@ class RecommendationEngine:
         
         # Use query embedding if available
         if query and content.content_embedding:
-            query_embeddings = await self.openai_service.generate_embeddings([query])
+            query_embeddings = await self.dedalus_service.generate_embeddings([query])
             if query_embeddings:
                 similarity = self.embedding_service.calculate_similarity(
                     query_embeddings[0],
