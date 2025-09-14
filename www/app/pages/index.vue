@@ -5,13 +5,44 @@ const loading = ref(false)
 async function createChat(prompt: string) {
   input.value = prompt
   loading.value = true
-  const chat = await $fetch('/api/chats', {
-    method: 'POST',
-    body: { input: prompt }
-  })
+  
+  try {
+    // Get AI recommendations for the learning query
+    const recommendations = await $fetch('/api/recommendations', {
+      method: 'POST',
+      body: { query: prompt }
+    })
+    
+    // Generate a learning plan
+    const learningPlan = await $fetch('/api/learning-plans', {
+      method: 'POST',
+      body: { query: prompt }
+    })
+    
+    // Create chat with AI recommendations and plan
+    const chat = await $fetch('/api/chats', {
+      method: 'POST',
+      body: { 
+        input: prompt,
+        recommendations: recommendations,
+        learningPlan: learningPlan
+      }
+    })
 
-  refreshNuxtData('chats')
-  navigateTo(`/chat/${chat?.id}`)
+    refreshNuxtData('chats')
+    navigateTo(`/chat/${chat?.id}`)
+  } catch (error) {
+    console.error('Error creating chat:', error)
+    // Fallback to regular chat creation
+    const chat = await $fetch('/api/chats', {
+      method: 'POST',
+      body: { input: prompt }
+    })
+    refreshNuxtData('chats')
+    navigateTo(`/chat/${chat?.id}`)
+  } finally {
+    loading.value = false
+  }
 }
 
 function onSubmit() {
@@ -20,13 +51,13 @@ function onSubmit() {
 
 const quickChats = [
   {
-    label: 'How should I create an AI agent?',
+    label: 'I want to learn React development',
   },
   {
-    label: 'Help me cook a british carbonara',
+    label: 'Help me master Python programming',
   },
   {
-    label: 'How to study Calculus for mid terms?',
+    label: 'How to study Machine Learning fundamentals?',
   }
 ]
 </script>
