@@ -13,7 +13,7 @@ const route = useRoute()
 const toast = useToast()
 const clipboard = useClipboard()
 
-const { data } = await useFetch(`/api/chats/${route.params.id}`, {
+const { data, refresh } = await useFetch(`/api/chats/${route.params.id}`, {
   cache: 'force-cache'
 })
 
@@ -22,7 +22,6 @@ if (!data.value) {
 }
 
 const input = ref('')
-
 const loading = ref(false)
 
 async function handleSubmit(e: Event) {
@@ -33,21 +32,16 @@ async function handleSubmit(e: Event) {
     loading.value = true
     
     try {
-      // Step 1: Get AI recommendations first
-      const recommendations = await $fetch('/api/recommendations', {
-        method: 'POST',
-        body: { query: userInput }
-      })
-      
-      // Add user message to chat
+      // Send message to chat endpoint which will handle recommendations
       await $fetch(`/api/chats/${route.params.id}`, {
         method: 'POST',
         body: { 
-          input: userInput,
-          recommendations: recommendations,
-          stage: 'recommendations_only'
+          message: userInput
         }
       })
+      
+      // Refresh the messages
+      await refresh()
       
       // Refresh the page to show new messages
       window.location.reload()

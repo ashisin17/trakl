@@ -113,69 +113,69 @@ defineRouteMeta({
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
-
   const { id } = getRouterParams(event)
-
   const body = await readBody(event)
   
-  // Handle simple message input - bypass database and use mock system
-  if (body.message || body.input) {
-    const userMessage = body.message || body.input
+  // Initialize mock chats if not exists
+  global.mockChats = global.mockChats || {}
+  
+  // Create chat if it doesn't exist
+  if (!global.mockChats[id as string]) {
+    global.mockChats[id as string] = {
+      id: id as string,
+      title: 'New Chat',
+      userId: session.user?.id || session.id,
+      createdAt: new Date().toISOString(),
+      messages: []
+    }
+  }
+  
+  // Handle user message
+  if (body.message) {
+    const userMessage = body.message.trim()
+    const lowerMessage = userMessage.toLowerCase()
+    
+    // Add user message to chat
+    global.mockChats[id as string].messages.push({
+      id: `msg-${Date.now()}-user`,
+      chatId: id as string,
+      role: 'user',
+      parts: [{ type: 'text', text: userMessage }],
+      createdAt: new Date().toISOString()
+    })
     
     // Check if this is a "yes" response for learning plan
-    if (userMessage.toLowerCase().includes('yes') || userMessage.toLowerCase().includes('create') || userMessage.toLowerCase().includes('plan')) {
+    if (lowerMessage.includes('yes') || lowerMessage.includes('create') || lowerMessage.includes('plan')) {
       // Generate learning plan
       const learningPlan = generateLearningPlan(userMessage)
       
-      // Add to mock chat
-      if (global.mockChats && global.mockChats[id as string]) {
-        global.mockChats[id as string].messages.push(
-          {
-            id: `msg-${Date.now()}-user`,
-            chatId: id as string,
-            role: 'user',
-            parts: [{ type: 'text', text: userMessage }],
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: `msg-${Date.now()}-assistant`,
-            chatId: id as string,
-            role: 'assistant',
-            parts: [{ type: 'text', text: learningPlan }],
-            createdAt: new Date().toISOString()
-          }
-        )
-      }
-      
-      return { success: true }
+      // Add assistant response with learning plan
+      global.mockChats[id as string].messages.push({
+        id: `msg-${Date.now()}-assistant`,
+        chatId: id as string,
+        role: 'assistant',
+        parts: [{ type: 'text', text: learningPlan }],
+        createdAt: new Date().toISOString()
+      })
     } else {
-      // Generate new recommendations
+      // Generate recommendations for new queries
       const recommendations = generateRecommendations(userMessage)
       const response = formatRecommendationsResponse(userMessage, recommendations)
       
-      // Add to mock chat
-      if (global.mockChats && global.mockChats[id as string]) {
-        global.mockChats[id as string].messages.push(
-          {
-            id: `msg-${Date.now()}-user`,
-            chatId: id as string,
-            role: 'user',
-            parts: [{ type: 'text', text: userMessage }],
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: `msg-${Date.now()}-assistant`,
-            chatId: id as string,
-            role: 'assistant',
-            parts: [{ type: 'text', text: response }],
-            createdAt: new Date().toISOString()
-          }
-        )
-      }
-      
-      return { success: true }
+      // Add assistant response with recommendations
+      global.mockChats[id as string].messages.push({
+        id: `msg-${Date.now()}-assistant`,
+        chatId: id as string,
+        role: 'assistant',
+        parts: [{ type: 'text', text: response }],
+        createdAt: new Date().toISOString()
+      })
     }
+    
+    return { success: true }
   }
+  
+  return { success: true }
 
   // Fallback for any other requests - return success to avoid errors
   return { success: true }

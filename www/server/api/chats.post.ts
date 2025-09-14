@@ -1,39 +1,49 @@
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
   const { message } = await readBody(event)
-
-  // Skip database entirely - create mock chat that works
-  const mockChatId = `chat-${Date.now()}`
-  const mockChat = {
-    id: mockChatId,
+  
+  // Initialize mock chats if not exists
+  global.mockChats = global.mockChats || {}
+  
+  // Create a new chat
+  const chatId = `chat-${Date.now()}`
+  const newChat = {
+    id: chatId,
     title: 'New Chat',
     userId: session.user?.id || session.id,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    messages: []
   }
-
-  // Store the conversation in memory for this session
-  global.mockChats = global.mockChats || {}
-  global.mockChats[mockChatId] = {
-    ...mockChat,
-    messages: [
-      {
-        id: `msg-${Date.now()}-1`,
-        chatId: mockChatId,
-        role: 'user',
-        parts: [{ type: 'text', text: message }],
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: `msg-${Date.now()}-2`, 
-        chatId: mockChatId,
-        role: 'assistant',
-        parts: [{ type: 'text', text: formatRecommendationsResponse(message, generateRecommendations(message)) }],
-        createdAt: new Date().toISOString()
-      }
-    ]
+  
+  // Store chat in memory
+  global.mockChats[chatId] = newChat
+  
+  // If there's an initial message, add it to the chat
+  if (message) {
+    // Add user message
+    global.mockChats[chatId].messages.push({
+      id: `msg-${Date.now()}-user`,
+      chatId,
+      role: 'user',
+      parts: [{ type: 'text', text: message }],
+      createdAt: new Date().toISOString()
+    })
+    
+    // Generate and add assistant response
+    const recommendations = generateRecommendations(message)
+    const response = formatRecommendationsResponse(message, recommendations)
+    
+    global.mockChats[chatId].messages.push({
+      id: `msg-${Date.now()}-assistant`,
+      chatId,
+      role: 'assistant',
+      parts: [{ type: 'text', text: response }],
+      createdAt: new Date().toISOString()
+    })
   }
-
-  return mockChat
+  
+  // Return the new chat
+  return newChat
 })
 
 function generateRecommendations(query: string) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const answers = reactive<Record<string, string>>({})
-
+const loading = ref(false)
 const toast = useToast()
 
 async function submit() {
@@ -10,15 +10,46 @@ async function submit() {
     return
   }
 
-  toast.add({ title: 'Preferences saved', description: 'Thanks — your preferences were recorded', color: 'success' })
-  // navigate back or forward as needed
-  navigateTo('/')
+  loading.value = true
+  
+  try {
+    // Create a new chat with the user's preferences
+    const preferences = Object.entries(answers)
+      .map(([questionId, answer]) => {
+        const question = QUIZ_QUESTIONS.find(q => q.id === questionId)
+        return `${question?.question || questionId}: ${answer}`
+      })
+      .join('\n')
+    
+    // Create a new chat with the preferences as the first message
+    const chat = await $fetch('/api/chats', {
+      method: 'POST',
+      body: {
+        message: `Here are my learning preferences:\n\n${preferences}\n\nPlease recommend me a learning plan.`
+      }
+    })
+    
+    // Redirect to the new chat
+    navigateTo(`/chat/${chat.id}`)
+    
+  } catch (error) {
+    console.error('Error creating chat:', error)
+    toast.add({
+      title: 'Error',
+      description: 'Could not create chat. Please try again.',
+      color: 'red'
+    })
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
 <template>
-  <div class="p-4">
-    <div class="space-y-4">
+  <div class="p-4 max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Learning Preferences</h1>
+    <p class="text-gray-600 dark:text-gray-400 mb-6">Answer these questions to help us create a personalized learning plan for you.</p>
+    <div class="space-y-6">
       <div v-for="q in QUIZ_QUESTIONS" :key="q.id">
         <UCard class="p-4">
           <div class="mb-3">
@@ -27,10 +58,14 @@ async function submit() {
           </div>
 
           <div class="flex flex-col gap-2">
-            <label v-for="opt in q.options" :key="opt.value" class="flex items-center gap-3 cursor-pointer">
+            <label v-for="opt in q.options" :key="opt.value" class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md">
               <input
                 type="radio"
                 :name="q.id"
+                :value="opt.value"
+                :checked="answers[q.id] === opt.value"
+                @change="answers[q.id] = opt.value"
+                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600"
                 :value="opt.value"
                 v-model="answers[q.id]"
                 class="accent-indigo-600"
@@ -45,7 +80,16 @@ async function submit() {
       </div>
 
       <div class="flex justify-end">
-        <UButton color="primary" @click="submit">Save preferences</UButton>
+        <div class="mt-8 flex justify-end">
+          <UButton 
+            @click="submit" 
+            :loading="loading"
+            icon="i-heroicons-sparkles"
+            size="lg"
+          >
+            Generate My Learning Plan
+          </UButton>
+        </div>
       </div>
     </div>
   </div>
