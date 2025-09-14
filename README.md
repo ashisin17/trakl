@@ -1,80 +1,219 @@
-# Trakl - AI Learning Agent
+# Trakl - AI-Powered Learning Platform
 
-An AI learning agent that turns goals into curated plans, schedules sessions, and gives feedback. Trakl discovers content across the internet, analyzes your learning preferences through a quiz system, and provides personalized recommendations based on your visual, auditory, and kinesthetic learning styles.
+An intelligent learning platform that transforms your goals into structured learning journeys. Trakl combines AI-powered recommendations with personalized learning experiences, adapting to your unique learning style and preferences.
 
-## Architecture
+## Key Features
+
+### Smart Recommendations
+- **Personalized Content Discovery**: AI-powered search across multiple learning platforms
+- **Learning Style Analysis**: Tailored content based on VARK (Visual, Auditory, Reading/Writing, Kinesthetic) preferences
+- **Adaptive Learning Paths**: Dynamic adjustment of content based on progress and engagement
+
+### Intelligent Agent System
+- **Goal-Based Planning**: Converts learning objectives into actionable plans
+- **Automated Scheduling**: Seamless calendar integration for session planning
+- **Progress Tracking**: Real-time monitoring of learning milestones and achievements
+
+### Interactive Learning Assistant
+- **Natural Language Interface**: Chat-based interaction for intuitive learning
+- **Context-Aware Responses**: Maintains conversation context for coherent interactions
+- **Rich Media Support**: Displays code snippets, videos, and interactive content
+
+## System Architecture
 
 ```
 trakl/
-├── docker-compose.yml          # Container orchestration
-├── schema.sql                  # PostgreSQL + pgvector schema
-├── README.md                   # This file
-├── rec/                        # Recommendation engine (FastAPI)
-│   ├── api/                    # REST API endpoints
-│   ├── services/               # Business logic
-│   ├── tests/                  # Test suite + evaluation harness
-│   └── Dockerfile
 ├── agent/                      # Orchestrator service (FastAPI)
 │   ├── api/                    # Plans, sessions, progress APIs
 │   ├── services/               # Plan generation, calendar integration
 │   └── Dockerfile
-└── www/                        # Nuxt.js frontend
-    ├── app/                    # Nuxt 3 application
-    ├── server/                 # API routes
-    └── components/             # Vue components
+├── rec/                        # Recommendation engine (FastAPI)
+│   ├── api/                    # REST API endpoints
+│   ├── services/               # Business logic
+│   └── Dockerfile
+├── www/                        # Nuxt.js frontend
+│   ├── app/                    # Nuxt 3 application
+│   ├── server/                 # API routes
+│   └── components/             # Vue components
+└── docker-compose.yml          # Container orchestration
 ```
 
-## Features
-
-### 🎯 Recommendation Engine (`rec/`)
+#### Recommendation Engine (`rec/`)
 - **Learning Style Quiz**: Analyzes visual, auditory, kinesthetic, and reading preferences
 - **Content Discovery**: Searches YouTube, Coursera, Medium, Dev.to, and other platforms
 - **AI-Powered Recommendations**: Uses OpenAI embeddings for semantic content matching
 - **Preference Learning**: Adapts recommendations based on user interactions
 - **Evaluation Harness**: Built-in testing for recommendation quality metrics
 
-### 🤖 Agent Service (`agent/`)
+#### Agent Service (`agent/`)
 - **AI Plan Generation**: Creates personalized learning plans using GPT-4
 - **Session Scheduling**: Integrates with Google Calendar for automatic scheduling
 - **Progress Tracking**: Monitors milestones, streaks, and skill development
 - **Adaptive Planning**: Adjusts plans based on user progress and feedback
+## Technical Stack
 
-### 🌐 Web Interface (`www/`)
-- **Nuxt 3 Application**: Modern Vue.js frontend with SSR
-- **Chat Interface**: Interactive learning assistant
-- **Progress Dashboard**: Visual progress tracking and analytics
-- **Responsive Design**: Works on desktop and mobile devices
+### Backend Services
+- **Python 3.9+**: Core application logic
+- **FastAPI**: High-performance API framework
+- **PostgreSQL + pgvector**: Vector database for semantic search
+- **Redis**: Caching and real-time features
+- **Docker**: Containerization and deployment
+
+### Frontend
+- **Nuxt 3**: Vue.js framework for the web interface
+- **TypeScript**: Type-safe JavaScript
+- **Tailwind CSS**: Utility-first CSS framework
+- **WebSockets**: Real-time communication
+
+### AI/ML Components
+- **OpenAI API**: Natural language understanding
+- **Hugging Face Transformers**: Custom model training
+- **scikit-learn**: Recommendation algorithms
+- **spaCy**: Text processing
 
 ## Quick Start
 
 ### Prerequisites
+
 - Docker and Docker Compose
+- Node.js 18+ and npm/yarn
+- Python 3.9+
+- PostgreSQL 13+
+- Redis (for caching)
 - OpenAI API key
-- (Optional) Google Calendar API credentials
 
-### 1. Environment Setup
+### Development Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/trakl.git
+   cd trakl
+   ```
+
+2. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   # Update the environment variables in .env with your API keys and configuration
+   ```
+
+3. **Start the development environment**
+   ```bash
+   # Start all services
+   docker-compose up -d
+   
+   # Or start services individually
+   docker-compose up -d postgres redis
+   cd www && npm install && npm run dev
+   cd ../rec && pip install -r requirements.txt && uvicorn main:app --reload
+   cd ../agent && pip install -r requirements.txt && uvicorn main:app --reload
+   ```
+
+4. **Access the application**
+   - Frontend: http://localhost:3000
+   - API Documentation: http://localhost:8000/docs
+   - Database Admin: http://localhost:8080 (if enabled)
+
+## 🛠️ Development
+
+### Running Services Individually
+
+#### Frontend (Nuxt 3)
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd trakl
-
-# Copy environment files
-cp rec/.env.example rec/.env
-cp agent/.env.example agent/.env
-
-# Add your OpenAI API key to both .env files
-echo "OPENAI_API_KEY=your_key_here" >> rec/.env
-echo "OPENAI_API_KEY=your_key_here" >> agent/.env
+cd www
+npm install
+npm run dev
 ```
 
-### 2. Start Services
+#### Recommendation Service
 ```bash
-# Start all services with Docker Compose
-docker-compose up -d
-
-# Check service health
-docker-compose ps
+cd rec
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8001
 ```
+
+#### Agent Service
+```bash
+cd agent
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8002
+```
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+# Unit tests
+cd rec && pytest
+
+# E2E tests
+cd www && npm run test:e2e
+```
+
+## 🚀 Deployment
+
+### Production Build
+```bash
+# Build all services
+docker-compose -f docker-compose.prod.yml build
+
+# Start production environment
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### Kubernetes Deployment (Optional)
+
+1. **Set up Kubernetes cluster**
+   ```bash
+   # Using minikube for local development
+   minikube start --cpus=4 --memory=8192mb
+   ```
+
+2. **Deploy to Kubernetes**
+   ```bash
+   # Apply Kubernetes manifests
+   kubectl apply -f k8s/
+   
+   # Access the application
+   minikube service trakl-frontend
+   ```
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+1. **Fork** the repository
+2. Create a **feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add some amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. Open a **Pull Request**
+
+### Development Guidelines
+- Follow the existing code style
+- Write tests for new features
+- Update documentation as needed
+- Keep commits atomic and well-documented
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **OpenAI** for their powerful language models
+- **FastAPI** and **Nuxt.js** communities
+- **PostgreSQL** and **Redis** teams
+- All our amazing contributors
+
+## 📚 Resources
+
+- [API Documentation](http://localhost:8000/docs) (when running locally)
+- [Frontend Style Guide](www/STYLEGUIDE.md)
+- [Architecture Decision Records](docs/adr/)
+- [Roadmap](docs/ROADMAP.md)
 
 ### 3. Access the Application
 - **Web Interface**: http://localhost:3000
