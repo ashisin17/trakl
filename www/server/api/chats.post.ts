@@ -1,25 +1,33 @@
+import { sql } from 'drizzle-orm'
+
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
 
   const { input, recommendations, learningPlan } = await readBody(event)
   const db = useDrizzle()
 
-  const [chat] = await db.insert(tables.chats).values({
-    id: crypto.randomUUID(),
-    title: '',
-    userId: session.user?.id || session.id
-  }).returning()
+  const chatId = crypto.randomUUID()
+  const userId = session.user?.id || session.id
+  const title = input || 'New Chat'
+  
+  // Use raw SQL to bypass Drizzle schema issues
+  const result = await db.execute(sql`
+    INSERT INTO chats (id, title, "userId", "createdAt") 
+    VALUES (${chatId}, ${title}, ${userId}, NOW()) 
+    RETURNING id, title, "userId", "createdAt"
+  `)
+  
+  const chat = { id: chatId, title, userId, createdAt: new Date() }
+  
   if (!chat) {
     throw createError({ statusCode: 500, statusMessage: 'Failed to create chat' })
   }
 
   // Add user message
-  await db.insert(tables.messages).values({
-    id: crypto.randomUUID(),
-    chatId: chat.id,
-    role: 'user',
-    parts: [{ type: 'text', text: input }]
-  })
+  await db.execute(sql`
+    INSERT INTO messages (id, "chatId", role, parts, "createdAt") 
+    VALUES (${crypto.randomUUID()}, ${chatId}, 'user', ${JSON.stringify([{ type: 'text', text: input }])}, NOW())
+  `)
 
   // Add AI response with recommendations and learning plan
   if (recommendations || learningPlan) {
@@ -54,12 +62,10 @@ export default defineEventHandler(async (event) => {
 
     aiResponse += `Ready to start your learning journey? Let me know if you'd like me to adjust the plan or find more specific resources!`
 
-    await db.insert(tables.messages).values({
-      id: crypto.randomUUID(),
-      chatId: chat.id,
-      role: 'assistant',
-      parts: [{ type: 'text', text: aiResponse }]
-    })
+    await db.execute(sql`
+      INSERT INTO messages (id, "chatId", role, parts, "createdAt") 
+      VALUES (${crypto.randomUUID()}, ${chatId}, 'assistant', ${JSON.stringify([{ type: 'text', text: aiResponse }])}, NOW())
+    `)
   }
 
   return chat

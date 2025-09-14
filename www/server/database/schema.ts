@@ -26,7 +26,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 }))
 
 export const chats = pgTable('chats', {
-  id: varchar({ length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: varchar({ length: 36 }).primaryKey(),
   title: varchar({ length: 200 }),
   userId: varchar({ length: 36 }).notNull(),
   ...timestamps
@@ -43,7 +43,7 @@ export const chatsRelations = relations(chats, ({ one, many }) => ({
 }))
 
 export const messages = pgTable('messages', {
-  id: varchar({ length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: varchar({ length: 36 }).primaryKey(),
   chatId: varchar({ length: 36 }).notNull().references(() => chats.id, { onDelete: 'cascade' }),
   role: roleEnum().notNull(),
   parts: json(),

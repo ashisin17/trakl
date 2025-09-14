@@ -23,11 +23,40 @@ if (!data.value) {
 
 const input = ref('')
 
-function handleSubmit(e: Event) {
+const loading = ref(false)
+
+async function handleSubmit(e: Event) {
   e.preventDefault()
-  if (input.value.trim()) {
-    // Send to Anshita's backend
+  if (input.value.trim() && !loading.value) {
+    const userInput = input.value.trim()
     input.value = ''
+    loading.value = true
+    
+    try {
+      // Step 1: Get AI recommendations first
+      const recommendations = await $fetch('/api/recommendations', {
+        method: 'POST',
+        body: { query: userInput }
+      })
+      
+      // Add user message to chat
+      await $fetch(`/api/chats/${route.params.id}`, {
+        method: 'POST',
+        body: { 
+          input: userInput,
+          recommendations: recommendations,
+          stage: 'recommendations_only'
+        }
+      })
+      
+      // Refresh the page to show new messages
+      window.location.reload()
+      
+    } catch (error) {
+      console.error('Error sending message:', error)
+    } finally {
+      loading.value = false
+    }
   }
 }
 
