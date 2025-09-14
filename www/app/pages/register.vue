@@ -1,13 +1,7 @@
 <script setup lang="ts">
-type QuizOption = { value: string; text: string; category?: string; weight?: number }
-type QuizQuestion = { id: string; question: string; options: QuizOption[]; category?: string }
-
-const fetchError = ref<string | null>(null)
 const answers = reactive<Record<string, string>>({})
 
 const toast = useToast()
-const config = useRuntimeConfig()
-const base = (config.REC_API_BASE_URL as string) ?? ''
 
 async function submit() {
   const missing = QUIZ_QUESTIONS.filter(q => !answers[q.id])
@@ -15,9 +9,6 @@ async function submit() {
     toast.add({ title: 'Please answer all questions', description: `${missing.length} question(s) left`, color: 'warning' })
     return
   }
-
-  // For now we just log the answers. Replace this with a POST if you have a submission endpoint.
-  console.log('Quiz answers:', JSON.parse(JSON.stringify(answers)))
 
   toast.add({ title: 'Preferences saved', description: 'Thanks — your preferences were recorded', color: 'success' })
   // navigate back or forward as needed
