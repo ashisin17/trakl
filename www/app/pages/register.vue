@@ -1,9 +1,19 @@
 <script setup lang="ts">
+
 const answers = reactive<Record<string, string>>({})
 const loading = ref(false)
 const toast = useToast()
 
-async function submit() {
+// Add debug logging
+console.log('Register component mounted')
+
+async function submit(event?: Event) {
+  if (event) {
+    event.preventDefault()
+  }
+  
+  console.log('Submit function called')
+  console.log('Form answers:', JSON.stringify(answers, null, 2))
   const missing = QUIZ_QUESTIONS.filter(q => !answers[q.id])
   if (missing.length) {
     toast.add({ title: 'Please answer all questions', description: `${missing.length} question(s) left`, color: 'warning' })
@@ -21,16 +31,34 @@ async function submit() {
       })
       .join('\n')
     
-    // Create a new chat with the preferences as the first message
-    const chat = await $fetch('/api/chats', {
-      method: 'POST',
-      body: {
-        message: `Here are my learning preferences:\n\n${preferences}\n\nPlease recommend me a learning plan.`
+    try {
+      console.log('Creating new chat with preferences:', preferences)
+      
+      // Create a new chat with the preferences as the first message
+      const chat = await $fetch('/api/chats', {
+        method: 'POST',
+        body: {
+          message: `Here are my learning preferences:\n\n${preferences}\n\nPlease recommend me a learning plan.`
+        },
+        onResponse({ response }) {
+          console.log('Chat creation response:', response.status, response._data)
+        },
+        onResponseError({ response }) {
+          console.error('Chat creation error:', response.status, response._data)
+        }
+      })
+      
+      if (chat?.id) {
+        console.log('Navigating to chat:', chat.id)
+        // Use hard navigation to ensure full page reload
+        window.location.href = `/chat/${chat.id}`
+      } else {
+        throw new Error('Failed to create chat: No chat ID returned')
       }
-    })
-    
-    // Redirect to the new chat
-    navigateTo(`/chat/${chat.id}`)
+    } catch (error) {
+      console.error('Error in registration submission:', error)
+      throw error // Re-throw to be caught by the outer try-catch
+    }
     
   } catch (error) {
     console.error('Error creating chat:', error)
@@ -76,10 +104,10 @@ async function submit() {
         </UCard>
       </div>
 
-      <div class="flex justify-end">
-        <div class="mt-8 flex justify-end">
+      <div @submit="submit" class="mt-8">
+        <div class="flex justify-end">
           <UButton 
-            @click="submit" 
+            type="submit"
             :loading="loading"
             icon="i-heroicons-sparkles"
             size="lg"

@@ -134,9 +134,10 @@ export default defineEventHandler(async (event) => {
   if (body.message) {
     const userMessage = body.message.trim()
     const lowerMessage = userMessage.toLowerCase()
+    const chat = global.mockChats[id as string]
     
     // Add user message to chat
-    global.mockChats[id as string].messages.push({
+    chat.messages.push({
       id: `msg-${Date.now()}-user`,
       chatId: id as string,
       role: 'user',
@@ -144,13 +145,18 @@ export default defineEventHandler(async (event) => {
       createdAt: new Date().toISOString()
     })
     
-    // Check if this is a "yes" response for learning plan
-    if (lowerMessage.includes('yes') || lowerMessage.includes('create') || lowerMessage.includes('plan')) {
-      // Generate learning plan
-      const learningPlan = generateLearningPlan(userMessage)
+    // Check if we're in the middle of a recommendation flow
+    const lastMessage = chat.messages[chat.messages.length - 2] // Get the last assistant message
+    const isRecommendationFlow = lastMessage?.role === 'assistant' && 
+                               lastMessage?.parts[0]?.text?.includes('Would you like me to create a detailed learning plan')
+    
+    if (isRecommendationFlow && (lowerMessage.includes('yes') || lowerMessage.includes('create') || lowerMessage.includes('plan'))) {
+      // Generate learning plan based on the original query
+      const originalQuery = chat.messages[chat.messages.length - 3]?.parts[0]?.text || userMessage
+      const learningPlan = generateLearningPlan(originalQuery)
       
       // Add assistant response with learning plan
-      global.mockChats[id as string].messages.push({
+      chat.messages.push({
         id: `msg-${Date.now()}-assistant`,
         chatId: id as string,
         role: 'assistant',
@@ -163,7 +169,7 @@ export default defineEventHandler(async (event) => {
       const response = formatRecommendationsResponse(userMessage, recommendations)
       
       // Add assistant response with recommendations
-      global.mockChats[id as string].messages.push({
+      chat.messages.push({
         id: `msg-${Date.now()}-assistant`,
         chatId: id as string,
         role: 'assistant',
