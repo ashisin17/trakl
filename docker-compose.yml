@@ -42,7 +42,6 @@ services:
         condition: service_started
     volumes:
       - ./rec:/app
-    restart: unless-stopped
 
   # Agent Service (placeholder for future implementation)
   agent-service:
@@ -78,4 +77,5 @@ services:
 
 volumes:
   postgres_data:
+    name: trakl_postgres_data_2
   redis_data:

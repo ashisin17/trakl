@@ -20,4 +20,5 @@ EXPOSE 8001
 
 # Set PYTHONPATH and run the application
 ENV PYTHONPATH=/app
-CMD ["python", "-m", "uvicorn", "rec.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+# Use uvicorn and explicitly set app directory so reload subprocesses can import the `rec` package
+CMD ["uvicorn", "rec.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload", "--app-dir", "/app"]
