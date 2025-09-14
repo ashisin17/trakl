@@ -1,22 +1,25 @@
+# OBSOLETE: This quiz API is deprecated. Use the quiz in www/app/pages/quiz.vue instead.
+# This file is kept for reference only.
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from typing import List
 import uuid
 
-from ..database import get_db, LearningPreference, User
-from ..models import (
+from database import get_db, LearningPreference, User
+from models import (
     LearningPreferenceCreate, 
     LearningPreferenceUpdate,
     QuizQuestion,
     QuizResponse,
     QuizResult
 )
-from ..services.preference_service import PreferenceService
+from services.preference_service import PreferenceService
 
 router = APIRouter()
 
-# Learning Style Quiz Questions
+# OBSOLETE: Learning Style Quiz Questions - Use www quiz instead
 QUIZ_QUESTIONS = [
     QuizQuestion(
         id="visual_1",

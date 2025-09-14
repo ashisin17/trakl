@@ -1,11 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 import uuid
+from config import settings
 from typing import List, Optional
 import numpy as np
 
-from ..database import ContentSource, LearningGoal
-from .openai_service import DedalusService
+from database import ContentSource, LearningGoal
+from services.openai_service import DedalusService
 
 class EmbeddingService:
     def __init__(self):

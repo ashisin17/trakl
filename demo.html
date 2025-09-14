@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Learning System Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .chat-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            background: #007bff;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 18px 18px 4px 18px;
+            margin-left: auto;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        
+        .bot-message {
+            background: white;
+            color: #333;
+            padding: 15px 20px;
+            border-radius: 18px 18px 18px 4px;
+            max-width: 85%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #4facfe;
+        }
+        
+        .bot-message h3 {
+            color: #4facfe;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .recommendation {
+            background: #f0f8ff;
+            border: 1px solid #e1f5fe;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .recommendation h4 {
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+        
+        .recommendation-meta {
+            display: flex;
+            gap: 15px;
+            margin: 8px 0;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .rating {
+            color: #ff9800;
+        }
+        
+        .reason {
+            background: #e8f5e8;
+            border-left: 3px solid #4caf50;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-style: italic;
+            font-size: 14px;
+        }
+        
+        .learning-plan {
+            background: #fff3e0;
+            border: 1px solid #ffcc02;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .week {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .week h5 {
+            color: #e65100;
+            margin-bottom: 5px;
+        }
+        
+        .goals {
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .deliverable {
+            background: #f3e5f5;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-top: 5px;
+            font-size: 13px;
+            color: #7b1fa2;
+        }
+        
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e1e5e9;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .chat-input input:focus {
+            border-color: #4facfe;
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .send-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .typing {
+            display: none;
+            color: #666;
+            font-style: italic;
+            padding: 10px 20px;
+        }
+        
+        .suggestions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .suggestion {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .suggestion:hover {
+            background: #1976d2;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🎯 Personalized Learning System</h1>
+            <p>AI-powered recommendations and learning plans</p>
+        </div>
+        
+        <div class="chat-messages" id="messages">
+            <div class="message">
+                <div class="bot-message">
+                    <h3>👋 Welcome to your personalized learning assistant!</h3>
+                    <p>I can help you find the best learning resources and create structured learning plans based on your goals.</p>
+                    <p><strong>Try asking:</strong> "Help me learn Python programming" or "I want to master React development"</p>
+                    
+                    <div class="suggestions">
+                        <div class="suggestion" onclick="sendSuggestion('Help me master Python programming')">🐍 Learn Python</div>
+                        <div class="suggestion" onclick="sendSuggestion('I want to learn React development')">⚛️ Learn React</div>
+                        <div class="suggestion" onclick="sendSuggestion('How to study Machine Learning fundamentals')">🤖 Machine Learning</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="typing" id="typing">AI is thinking...</div>
+        
+        <div class="chat-input">
+            <div class="input-container">
+                <input type="text" id="messageInput" placeholder="What would you like to learn?" onkeypress="handleKeyPress(event)">
+                <button class="send-btn" onclick="sendMessage()" id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let conversationState = 'initial'; // 'initial', 'waiting_for_plan_confirmation', 'completed'
+        let currentQuery = '';
+        
+        const recommendations = {
+            'python': [
+                {
+                    title: "Python Complete Course - Visual Learning",
+                    platform: "YouTube",
+                    type: "Video Tutorial",
+                    duration: "45 minutes",
+                    rating: 4.8,
+                    description: "Comprehensive Python course with visual diagrams and step-by-step coding examples",
+                    reason: "Perfect match for visual learners who prefer video content at intermediate level"
+                },
+                {
+                    title: "Interactive Python Coding Bootcamp",
+                    platform: "Codecademy",
+                    type: "Interactive Course",
+                    duration: "30 minutes per session",
+                    rating: 4.7,
+                    description: "Hands-on Python programming with immediate feedback and visual code execution",
+                    reason: "Interactive format matches preference for engaging, visual learning experiences"
+                },
+                {
+                    title: "Python Fundamentals with Visual Diagrams",
+                    platform: "Medium",
+                    type: "Article Series",
+                    duration: "25 minutes per article",
+                    rating: 4.6,
+                    description: "Python concepts explained through flowcharts, diagrams, and visual examples",
+                    reason: "Uses visual aids and diagrams to explain programming concepts clearly"
+                }
+            ],
+            'react': [
+                {
+                    title: "React Complete Guide - Modern Development",
+                    platform: "Udemy",
+                    type: "Video Course",
+                    duration: "60 minutes per lesson",
+                    rating: 4.9,
+                    description: "Complete React course covering hooks, context, and modern patterns",
+                    reason: "Comprehensive coverage perfect for building real-world applications"
+                },
+                {
+                    title: "Interactive React Tutorial",
+                    platform: "React.dev",
+                    type: "Interactive Tutorial",
+                    duration: "2-3 hours",
+                    rating: 4.8,
+                    description: "Official React tutorial with hands-on exercises and immediate feedback",
+                    reason: "Official documentation with practical examples and best practices"
+                },
+                {
+                    title: "React Projects for Beginners",
+                    platform: "freeCodeCamp",
+                    type: "Project-based Course",
+                    duration: "4-6 hours",
+                    rating: 4.7,
+                    description: "Build real React applications from scratch with step-by-step guidance",
+                    reason: "Project-based learning helps reinforce concepts through practical application"
+                }
+            ],
+            'machine learning': [
+                {
+                    title: "Machine Learning Crash Course",
+                    platform: "Google AI",
+                    type: "Interactive Course",
+                    duration: "15 hours total",
+                    rating: 4.8,
+                    description: "Google's fast-paced introduction to machine learning with TensorFlow APIs",
+                    reason: "Industry-standard content from Google with practical TensorFlow examples"
+                },
+                {
+                    title: "ML Fundamentals with Python",
+                    platform: "Coursera",
+                    type: "Video Course",
+                    duration: "4-6 weeks",
+                    rating: 4.9,
+                    description: "Comprehensive ML course covering algorithms, data preprocessing, and model evaluation",
+                    reason: "University-level content with hands-on Python programming exercises"
+                },
+                {
+                    title: "Visual Guide to Machine Learning",
+                    platform: "Towards Data Science",
+                    type: "Article Series",
+                    duration: "30 minutes per article",
+                    rating: 4.6,
+                    description: "ML concepts explained through visualizations and interactive examples",
+                    reason: "Perfect for visual learners who want to understand ML concepts intuitively"
+                }
+            ]
+        };
+        
+        const learningPlans = {
+            'python': {
+                title: "Personalized Python Programming Journey",
+                duration: "4-6 weeks",
+                commitment: "3-4 hours per week",
+                description: "A structured learning path tailored for visual learners who prefer interactive content",
+                weeks: [
+                    {
+                        week: 1,
+                        title: "Python Basics & Syntax",
+                        goals: ["Understand Python syntax and structure", "Learn variables, data types, and operators", "Write your first Python programs"],
+                        deliverable: "Simple calculator program"
+                    },
+                    {
+                        week: 2,
+                        title: "Control Flow & Functions",
+                        goals: ["Master if/else statements and loops", "Create and use functions effectively", "Handle user input and validation"],
+                        deliverable: "Interactive quiz game"
+                    },
+                    {
+                        week: 3,
+                        title: "Data Structures & File Handling",
+                        goals: ["Master lists, dictionaries, and sets", "Read and write files", "Process and analyze data"],
+                        deliverable: "Data analysis script"
+                    },
+                    {
+                        week: 4,
+                        title: "Object-Oriented Programming & Projects",
+                        goals: ["Understand classes and objects", "Implement inheritance and polymorphism", "Build a complete application"],
+                        deliverable: "Personal project (task manager, game, or web scraper)"
+                    }
+                ]
+            },
+            'react': {
+                title: "React Development Mastery Path",
+                duration: "6-8 weeks",
+                commitment: "4-5 hours per week",
+                description: "Complete React learning journey from basics to advanced patterns",
+                weeks: [
+                    {
+                        week: 1,
+                        title: "React Fundamentals",
+                        goals: ["Understand JSX and components", "Learn props and state", "Handle events and forms"],
+                        deliverable: "Interactive todo list app"
+                    },
+                    {
+                        week: 2,
+                        title: "Hooks & State Management",
+                        goals: ["Master useState and useEffect", "Learn custom hooks", "Understand component lifecycle"],
+                        deliverable: "Weather app with API integration"
+                    },
+                    {
+                        week: 3,
+                        title: "Routing & Navigation",
+                        goals: ["Implement React Router", "Create multi-page applications", "Handle dynamic routes"],
+                        deliverable: "Multi-page portfolio website"
+                    },
+                    {
+                        week: 4,
+                        title: "Advanced Patterns & Deployment",
+                        goals: ["Context API and global state", "Performance optimization", "Deploy to production"],
+                        deliverable: "Full-stack React application"
+                    }
+                ]
+            },
+            'machine learning': {
+                title: "Machine Learning Fundamentals Journey",
+                duration: "8-10 weeks",
+                commitment: "5-6 hours per week",
+                description: "Comprehensive ML learning path with hands-on projects and real-world applications",
+                weeks: [
+                    {
+                        week: 1,
+                        title: "ML Foundations & Python Setup",
+                        goals: ["Understand ML concepts and types", "Set up Python environment", "Learn NumPy and Pandas"],
+                        deliverable: "Data exploration notebook"
+                    },
+                    {
+                        week: 2,
+                        title: "Data Preprocessing & Visualization",
+                        goals: ["Clean and prepare datasets", "Handle missing data", "Create meaningful visualizations"],
+                        deliverable: "Complete data analysis project"
+                    },
+                    {
+                        week: 3,
+                        title: "Supervised Learning Algorithms",
+                        goals: ["Implement linear regression", "Understand classification algorithms", "Model evaluation metrics"],
+                        deliverable: "Prediction model for real dataset"
+                    },
+                    {
+                        week: 4,
+                        title: "Advanced ML & Deployment",
+                        goals: ["Neural networks basics", "Model deployment", "MLOps fundamentals"],
+                        deliverable: "Deployed ML web application"
+                    }
+                ]
+            }
+        };
+        
+        function addMessage(content, isUser = false) {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = isUser ? 'user-message' : 'bot-message';
+            messageContent.innerHTML = content;
+            
+            messageDiv.appendChild(messageContent);
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function showTyping() {
+            document.getElementById('typing').style.display = 'block';
+            document.getElementById('sendBtn').disabled = true;
+        }
+        
+        function hideTyping() {
+            document.getElementById('typing').style.display = 'none';
+            document.getElementById('sendBtn').disabled = false;
+        }
+        
+        function getRecommendations(query) {
+            const lowerQuery = query.toLowerCase();
+            if (lowerQuery.includes('python')) return recommendations.python;
+            if (lowerQuery.includes('react')) return recommendations.react;
+            if (lowerQuery.includes('machine learning') || lowerQuery.includes('ml')) return recommendations['machine learning'];
+            
+            // Default recommendations
+            return recommendations.python;
+        }
+        
+        function getLearningPlan(query) {
+            const lowerQuery = query.toLowerCase();
+            if (lowerQuery.includes('python')) return learningPlans.python;
+            if (lowerQuery.includes('react')) return learningPlans.react;
+            if (lowerQuery.includes('machine learning') || lowerQuery.includes('ml')) return learningPlans['machine learning'];
+            
+            // Default plan
+            return learningPlans.python;
+        }
+        
+        function formatRecommendations(recs) {
+            let html = '<h3>🎯 Personalized Recommendations</h3>';
+            html += '<p>Based on your learning preferences, here are the best resources:</p>';
+            
+            recs.forEach((rec, index) => {
+                html += `
+                    <div class="recommendation">
+                        <h4>${index + 1}. ${rec.title}</h4>
+                        <p>${rec.description}</p>
+                        <div class="recommendation-meta">
+                            <span><strong>Platform:</strong> ${rec.platform}</span>
+                            <span><strong>Type:</strong> ${rec.type}</span>
+                            <span><strong>Duration:</strong> ${rec.duration}</span>
+                            <span class="rating"><strong>Rating:</strong> ${rec.rating}⭐</span>
+                        </div>
+                        <div class="reason">💡 <strong>Why recommended:</strong> ${rec.reason}</div>
+                    </div>
+                `;
+            });
+            
+            html += '<p><strong>Would you like me to create a detailed learning plan based on these recommendations?</strong></p>';
+            html += '<div class="suggestions"><div class="suggestion" onclick="sendSuggestion(\'Yes, create a learning plan\')">✅ Yes, create plan</div><div class="suggestion" onclick="sendSuggestion(\'Show me different resources\')">🔄 Different resources</div></div>';
+            
+            return html;
+        }
+        
+        function formatLearningPlan(plan) {
+            let html = `<h3>📚 ${plan.title}</h3>`;
+            html += `<p>${plan.description}</p>`;
+            html += `<div style="margin: 15px 0; padding: 10px; background: #e8f5e8; border-radius: 8px;">`;
+            html += `<strong>📅 Duration:</strong> ${plan.duration} | <strong>⏰ Weekly commitment:</strong> ${plan.commitment}`;
+            html += `</div>`;
+            
+            html += '<div class="learning-plan">';
+            plan.weeks.forEach(week => {
+                html += `
+                    <div class="week">
+                        <h5>Week ${week.week}: ${week.title}</h5>
+                        <div class="goals">
+                            <strong>Goals:</strong>
+                            <ul style="margin: 5px 0 5px 20px;">
+                                ${week.goals.map(goal => `<li>${goal}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="deliverable"><strong>Deliverable:</strong> ${week.deliverable}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            html += '<p style="margin-top: 15px;"><strong>🎉 Your personalized learning journey is ready!</strong> You can start with Week 1 and progress at your own pace.</p>';
+            
+            return html;
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, true);
+            input.value = '';
+            
+            showTyping();
+            
+            setTimeout(() => {
+                hideTyping();
+                handleBotResponse(message);
+            }, 1500);
+        }
+        
+        function handleBotResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (conversationState === 'initial') {
+                // Generate recommendations
+                currentQuery = message;
+                const recs = getRecommendations(message);
+                const response = formatRecommendations(recs);
+                addMessage(response);
+                conversationState = 'waiting_for_plan_confirmation';
+                
+            } else if (conversationState === 'waiting_for_plan_confirmation') {
+                if (lowerMessage.includes('yes') || lowerMessage.includes('create') || lowerMessage.includes('plan')) {
+                    // Generate learning plan
+                    const plan = getLearningPlan(currentQuery);
+                    const response = formatLearningPlan(plan);
+                    addMessage(response);
+                    conversationState = 'completed';
+                    
+                    // Reset for new conversation
+                    setTimeout(() => {
+                        conversationState = 'initial';
+                        addMessage('<h3>🚀 Ready for another learning goal?</h3><p>Ask me about any topic you\'d like to learn!</p>');
+                    }, 3000);
+                    
+                } else if (lowerMessage.includes('different') || lowerMessage.includes('other')) {
+                    addMessage('<h3>🔄 Let me know what specific topic interests you!</h3><p>Try: "Help me learn JavaScript" or "I want to study data science"</p>');
+                    conversationState = 'initial';
+                } else {
+                    // Treat as new query
+                    currentQuery = message;
+                    const recs = getRecommendations(message);
+                    const response = formatRecommendations(recs);
+                    addMessage(response);
+                    conversationState = 'waiting_for_plan_confirmation';
+                }
+            }
+        }
+        
+        function sendSuggestion(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        // Focus input on load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('messageInput').focus();
+        });
+    </script>
+</body>
+</html>

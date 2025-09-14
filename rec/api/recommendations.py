@@ -4,15 +4,15 @@ from sqlalchemy import select, and_, or_
 from typing import List, Optional
 import uuid
 
-from ..database import get_db, ContentSource, LearningPreference, LearningGoal, Recommendation
-from ..models import (
+from database import get_db, ContentSource, LearningPreference, LearningGoal, Recommendation
+from models import (
     RecommendationRequest,
     RecommendationResponse,
     RecommendationListResponse,
     ContentSourceResponse,
     ContentType
 )
-from ..services.recommendation_engine import RecommendationEngine
+from services.recommendation_engine import RecommendationEngine
 
 router = APIRouter()
 

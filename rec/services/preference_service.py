@@ -4,9 +4,10 @@ from typing import List, Dict, Any
 import uuid
 from datetime import datetime
 
-from ..database import LearningPreference, User
-from ..models import LearningPreferenceCreate, LearningStyleQuizResponse
-from .openai_service import DedalusService
+from database import LearningPreference, User
+from config import settings
+from models import LearningPreferenceCreate, LearningStyleQuizResponse
+from services.openai_service import DedalusService
 
 class PreferenceService:
     def __init__(self, db: AsyncSession):

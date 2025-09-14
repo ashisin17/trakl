@@ -4,10 +4,10 @@ from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime
 
-from ..database import ContentSource, LearningPreference, LearningGoal, Recommendation, UserInteraction
-from ..models import ContentType, DifficultyLevel
-from .embedding_service import EmbeddingService
-from .openai_service import DedalusService
+from database import ContentSource, LearningPreference, LearningGoal, Recommendation, UserInteraction
+from models import RecommendationResponse, ContentType, DifficultyLevel
+from services.embedding_service import EmbeddingService
+from services.openai_service import DedalusService
 
 class RecommendationEngine:
     def __init__(self, db: AsyncSession):

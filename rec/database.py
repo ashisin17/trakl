@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from pgvector.sqlalchemy import Vector
 import uuid
 from datetime import datetime
-from .config import settings
+from config import settings
 
 # Create async engine
 engine = create_async_engine(

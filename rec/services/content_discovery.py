@@ -8,10 +8,10 @@ import uuid
 from urllib.parse import urljoin, urlparse
 import re
 
-from ..database import ContentSource
-from ..models import ContentType, ContentSourceResponse, DifficultyLevel
-from .openai_service import DedalusService
-from .embedding_service import EmbeddingService
+from database import ContentSource
+from models import ContentSourceCreate, ContentType, DifficultyLevel
+from services.openai_service import DedalusService
+from services.embedding_service import EmbeddingService
 
 class ContentDiscoveryService:
     def __init__(self, db: AsyncSession):
@@ -49,7 +49,7 @@ class ContentDiscoveryService:
         content_types: Optional[List[ContentType]] = None,
         max_results: int = 20,
         platforms: Optional[List[str]] = None
-    ) -> List[ContentSourceResponse]:
+    ) -> List[ContentSourceCreate]:
         """Search for learning content across multiple platforms"""
         
         discovered_content = []
@@ -88,7 +88,7 @@ class ContentDiscoveryService:
         
         return stored_content
     
-    async def _search_platform(self, platform: str, query: str, max_results: int) -> List[ContentSourceResponse]:
+    async def _search_platform(self, platform: str, query: str, max_results: int) -> List[ContentSourceCreate]:
         """Search a specific platform for content"""
         
         if platform not in self.search_configs:
@@ -103,7 +103,7 @@ class ContentDiscoveryService:
         
         return []
     
-    async def _search_youtube(self, query: str, max_results: int) -> List[ContentSourceResponse]:
+    async def _search_youtube(self, query: str, max_results: int) -> List[ContentSourceCreate]:
         """Search YouTube for educational videos (mock implementation)"""
         # In production, you'd use YouTube Data API
         # For now, return mock data
@@ -129,7 +129,7 @@ class ContentDiscoveryService:
         
         results = []
         for item in mock_results[:max_results]:
-            results.append(ContentSourceResponse(
+            results.append(ContentSourceCreate(
                 id=str(uuid.uuid4()),
                 url=item["url"],
                 title=item["title"],
@@ -146,7 +146,7 @@ class ContentDiscoveryService:
         
         return results
     
-    async def _search_web_platform(self, platform: str, query: str, max_results: int) -> List[ContentSourceResponse]:
+    async def _search_web_platform(self, platform: str, query: str, max_results: int) -> List[ContentSourceCreate]:
         """Search web platforms by scraping (mock implementation)"""
         
         # Mock results for different platforms
@@ -210,7 +210,7 @@ class ContentDiscoveryService:
         results = []
         
         for item in platform_data["results"][:max_results]:
-            results.append(ContentSourceResponse(
+            results.append(ContentSourceCreate(
                 id=str(uuid.uuid4()),
                 url=item["url"],
                 title=item["title"],
@@ -227,7 +227,7 @@ class ContentDiscoveryService:
         
         return results
     
-    async def _store_content(self, content: ContentSourceResponse) -> Optional[ContentSourceResponse]:
+    async def _store_content(self, content: ContentSourceCreate) -> Optional[ContentSourceCreate]:
         """Store discovered content in database"""
         
         # Check if URL already exists
@@ -237,7 +237,7 @@ class ContentDiscoveryService:
         existing = result.scalar_one_or_none()
         
         if existing:
-            return ContentSourceResponse(
+            return ContentSourceCreate(
                 id=str(existing.id),
                 url=existing.url,
                 title=existing.title,
@@ -270,7 +270,7 @@ class ContentDiscoveryService:
         await self.db.commit()
         await self.db.refresh(db_content)
         
-        return ContentSourceResponse(
+        return ContentSourceCreate(
             id=str(db_content.id),
             url=db_content.url,
             title=db_content.title,

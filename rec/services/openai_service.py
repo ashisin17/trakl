@@ -1,7 +1,7 @@
 import asyncio
 from typing import List, Optional
 from dedalus_labs import AsyncDedalus, DedalusRunner
-from ..config import settings
+from config import settings
 
 class DedalusService:
     def __init__(self):

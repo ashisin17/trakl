@@ -4,16 +4,16 @@ from sqlalchemy import select, and_
 from typing import List, Optional
 import uuid
 
-from ..database import get_db, ContentSource
-from ..models import (
+from database import get_db, ContentSource
+from models import (
     ContentSourceCreate,
     ContentSourceResponse, 
     ContentDiscoveryRequest,
     ContentDiscoveryResponse,
     ContentType
 )
-from ..services.content_discovery import ContentDiscoveryService
-from ..services.embedding_service import EmbeddingService
+from services.content_discovery import ContentDiscoveryService
+from services.embedding_service import EmbeddingService
 
 router = APIRouter()
 
