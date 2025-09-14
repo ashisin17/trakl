@@ -1,0 +1,20 @@
+const MESSAGE = 'Time is up!'; // COULD DO CUSTOM MESSSAG HERE FOR ECH BLOCK
+
+// Set timer for 5 seconds (5000 milliseconds)
+setTimeout(() => {
+    fetch('https://poke.com/api/v1/inbound-sms/webhook', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${API_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            'message': MESSAGE
+        })
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+}, 5000); // 5000ms = 5 seconds
+
+console.log('Timer started - API call will execute in 5 seconds...');
