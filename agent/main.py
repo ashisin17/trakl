@@ -2,9 +2,9 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from contextlib import asynccontextmanager
-from .api import plans
-from .database import engine, create_tables
-from .config import settings
+from api import plans
+from database import engine, create_tables
+from config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

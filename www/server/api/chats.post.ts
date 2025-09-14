@@ -1,33 +1,15 @@
-import { sql } from 'drizzle-orm'
-
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
-
   const { input, recommendations, learningPlan } = await readBody(event)
-  const db = useDrizzle()
-
+  
+  // Create a simple mock chat response for now
   const chatId = crypto.randomUUID()
-  const userId = session.user?.id || session.id
-  const title = input || 'New Chat'
-  
-  // Use raw SQL to bypass Drizzle schema issues
-  const result = await db.execute(sql`
-    INSERT INTO chats (id, title, "userId", "createdAt") 
-    VALUES (${chatId}, ${title}, ${userId}, NOW()) 
-    RETURNING id, title, "userId", "createdAt"
-  `)
-  
-  const chat = { id: chatId, title, userId, createdAt: new Date() }
-  
-  if (!chat) {
-    throw createError({ statusCode: 500, statusMessage: 'Failed to create chat' })
+  const chat = {
+    id: chatId,
+    title: input || 'New Chat',
+    userId: session.user?.id || session.id,
+    createdAt: new Date()
   }
-
-  // Add user message
-  await db.execute(sql`
-    INSERT INTO messages (id, "chatId", role, parts, "createdAt") 
-    VALUES (${crypto.randomUUID()}, ${chatId}, 'user', ${JSON.stringify([{ type: 'text', text: input }])}, NOW())
-  `)
 
   // Add AI response with recommendations and learning plan
   if (recommendations || learningPlan) {
@@ -62,10 +44,8 @@ export default defineEventHandler(async (event) => {
 
     aiResponse += `Ready to start your learning journey? Let me know if you'd like me to adjust the plan or find more specific resources!`
 
-    await db.execute(sql`
-      INSERT INTO messages (id, "chatId", role, parts, "createdAt") 
-      VALUES (${crypto.randomUUID()}, ${chatId}, 'assistant', ${JSON.stringify([{ type: 'text', text: aiResponse }])}, NOW())
-    `)
+    // Mock message storage - in production this would save to database
+    console.log('Would save assistant message:', aiResponse)
   }
 
   return chat

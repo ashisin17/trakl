@@ -5,15 +5,15 @@ from datetime import datetime, timedelta
 import json
 from dedalus_labs import AsyncDedalus, DedalusRunner
 
-from ..database import LearningPlan
-from ..models import (
+from database import get_db, LearningPlan
+from models import (
     PlanGenerationResponse, 
     LearningPlanResponse, 
     Milestone, 
     WeeklySchedule,
     PlanStatus
 )
-from ..config import settings
+from config import settings
 
 class PlanGeneratorService:
     def __init__(self, db: AsyncSession):

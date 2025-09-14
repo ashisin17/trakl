@@ -5,16 +5,16 @@ from typing import List
 import uuid
 import httpx
 
-from ..database import get_db, LearningPlan
-from ..models import (
+from database import get_db, LearningPlan
+from models import (
     LearningPlanCreate,
     LearningPlanResponse,
     PlanGenerationRequest,
     PlanGenerationResponse,
     PlanStatus
 )
-from ..services.plan_generator import PlanGeneratorService
-from ..config import settings
+from services.plan_generator import PlanGeneratorService
+from config import settings
 
 router = APIRouter()
 

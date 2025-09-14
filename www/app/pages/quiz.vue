@@ -107,26 +107,32 @@ const canProceed = computed(() => {
               @click="selectAnswer(questions[currentQuestion].id, option.value)"
             >
               <div 
-                class="p-4 border rounded-lg transition-colors hover:bg-gray-50"
+                class="p-4 border rounded-lg transition-all duration-200 hover:bg-gray-50 hover:shadow-sm cursor-pointer"
                 :class="{
-                  'border-blue-500 bg-blue-50': answers[questions[currentQuestion].id] === option.value,
-                  'border-gray-200': answers[questions[currentQuestion].id] !== option.value
+                  'border-blue-500 bg-blue-50 shadow-sm': answers[questions[currentQuestion].id] === option.value,
+                  'border-gray-200 hover:border-gray-300': answers[questions[currentQuestion].id] !== option.value
                 }"
               >
                 <div class="flex items-center">
                   <div 
-                    class="w-4 h-4 rounded-full border-2 mr-3"
+                    class="w-5 h-5 rounded-full border-2 mr-3 transition-all duration-200 flex items-center justify-center"
                     :class="{
                       'border-blue-500 bg-blue-500': answers[questions[currentQuestion].id] === option.value,
-                      'border-gray-300': answers[questions[currentQuestion].id] !== option.value
+                      'border-gray-300 hover:border-blue-300': answers[questions[currentQuestion].id] !== option.value
                     }"
                   >
                     <div 
                       v-if="answers[questions[currentQuestion].id] === option.value"
-                      class="w-2 h-2 bg-white rounded-full mx-auto mt-0.5"
+                      class="w-2 h-2 bg-white rounded-full transition-all duration-200"
                     />
                   </div>
-                  <span>{{ option.text }}</span>
+                  <span 
+                    class="transition-colors duration-200"
+                    :class="{
+                      'text-blue-700 font-medium': answers[questions[currentQuestion].id] === option.value,
+                      'text-gray-700': answers[questions[currentQuestion].id] !== option.value
+                    }"
+                  >{{ option.text }}</span>
                 </div>
               </div>
             </div>

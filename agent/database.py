@@ -4,7 +4,7 @@ from sqlalchemy import Column, String, DateTime, Text, JSON, Float, Integer, Boo
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 import uuid
 from datetime import datetime
-from .config import settings
+from config import settings
 
 # Create async engine
 engine = create_async_engine(
