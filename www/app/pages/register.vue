@@ -65,10 +65,7 @@ async function submit() {
                 :value="opt.value"
                 :checked="answers[q.id] === opt.value"
                 @change="answers[q.id] = opt.value"
-                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600"
-                :value="opt.value"
-                v-model="answers[q.id]"
-                class="accent-indigo-600"
+                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 accent-indigo-600"
               />
               <div>
                 <div class="text-sm">{{ opt.text }}</div>
