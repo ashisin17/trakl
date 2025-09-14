@@ -79,7 +79,7 @@ async function deleteChat(id: string) {
 function logout() {
   const {username} = useUsername();
   username.value = null;
-  navigateTo('/register');
+  navigateTo('/auth');
 }
 
 defineShortcuts({
